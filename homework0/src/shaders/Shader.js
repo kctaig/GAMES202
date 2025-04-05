@@ -10,12 +10,18 @@ class Shader {
         }, shaderLocations);
     }
 
+    //
+    // creates a shader of the given type, uploads the source and
+    // compiles it.
+    //
     compileShader(shaderSource, shaderType) {
         const gl = this.gl;
         var shader = gl.createShader(shaderType);
+        // Send the source to the shader object
         gl.shaderSource(shader, shaderSource);
+        // Compile the shader program
         gl.compileShader(shader);
-
+        // See if it compiled successfully
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             console.error(shaderSource);
             console.error(('shader compiler error:\n' + gl.getShaderInfoLog(shader)));
@@ -24,8 +30,12 @@ class Shader {
         return shader;
     };
 
+    //
+    // Initialize a shader program, so WebGL knows how to draw our data
+    //
     linkShader(vs, fs) {
         const gl = this.gl;
+        // Create the shader program
         var prog = gl.createProgram();
         gl.attachShader(prog, vs);
         gl.attachShader(prog, fs);
