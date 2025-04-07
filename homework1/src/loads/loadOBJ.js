@@ -16,7 +16,7 @@ function loadOBJ(renderer, path, name, objMaterial, transform) {
 	new THREE.MTLLoader(manager)
 		.setPath(path)
 		.load(name + '.mtl', function (materials) {
-			materials.preload();
+			materials.preload(); // 会进行资源的异步加载
 			new THREE.OBJLoader(manager)
 				.setMaterials(materials)
 				.setPath(path)
