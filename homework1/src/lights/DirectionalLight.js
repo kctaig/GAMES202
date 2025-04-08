@@ -6,11 +6,11 @@ class DirectionalLight {
         this.lightPos = lightPos;
         this.focalPoint = focalPoint;
         this.lightUp = lightUp
-
+        // 当光源参数 hasShadowMap 为 true 时，将开启 Shadow Map
         this.hasShadowMap = hasShadowMap;
         this.fbo = new FBO(gl);
         if (!this.fbo) {
-            console.log("无法设置帧缓冲区对象");
+            console.log("无法设置帧缓冲区对象"); 
             return;
         }
     }

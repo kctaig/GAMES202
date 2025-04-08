@@ -11,8 +11,9 @@ class Mesh {
 		this.hasVertices = false;
 		this.hasNormals = false;
 		this.hasTexcoords = false;
-
+		// 表示在三个坐标轴的平移量
 		const modelTranslation = [transform.modelTransX, transform.modelTransY, transform.modelTransZ];
+		// 表示在三个坐标轴的缩放量
 		const modelScale = [transform.modelScaleX, transform.modelScaleY, transform.modelScaleZ];
 		let meshTrans = new TRSTransform(modelTranslation, modelScale);
 		this.transform = meshTrans;

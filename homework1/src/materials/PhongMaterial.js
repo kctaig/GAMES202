@@ -3,7 +3,8 @@ class PhongMaterial extends Material {
     constructor(color, specular, light, translate, scale, vertexShader, fragmentShader) {
         let lightMVP = light.CalcLightMVP(translate, scale);
         let lightIntensity = light.mat.GetIntensity();
-
+        // 这里没有传入 frameBuffer 参数，
+        // 因此在父类 Material 中，frameBuffer 将被默认设置为 undefined
         super({
             // Phong
             'uSampler': { type: 'texture', value: color },
