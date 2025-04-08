@@ -17,22 +17,31 @@ function loadOBJ(renderer, path, name, objMaterial, transform) {
 		.setPath(path)
 		.load(name + '.mtl', function (materials) {
 			materials.preload(); // 会进行资源的异步加载
+			// 创建一个OBJLoader对象
 			new THREE.OBJLoader(manager)
 				.setMaterials(materials)
-				.setPath(path)
-				.load(name + '.obj', function (object) {
+				// 设置obj模型所在路径
+				.setPath(path) 
+				// 加载指定的obj模型
+				.load(name + '.obj', function (object) { 
+					// 遍历加载模型对象的所有子对象
 					object.traverse(function (child) {
 						if (child.isMesh) {
+							// 提取网格geometry
 							let geo = child.geometry;
+							// 提取材质
 							let mat;
 							if (Array.isArray(child.material)) mat = child.material[0];
 							else mat = child.material;
-
+							
 							var indices = Array.from({ length: geo.attributes.position.count }, (v, k) => k);
-							let mesh = new Mesh({ name: 'aVertexPosition', array: geo.attributes.position.array },
+							let mesh = new Mesh(
+								{ name: 'aVertexPosition', array: geo.attributes.position.array },
 								{ name: 'aNormalPosition', array: geo.attributes.normal.array },
 								{ name: 'aTextureCoord', array: geo.attributes.uv.array },
-								indices, transform);
+								indices, 
+								transform
+							);
 
 							let colorMap = new Texture();
 							if (mat.map != null) {

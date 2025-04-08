@@ -19,9 +19,9 @@ class MeshRender {
 		let extraAttribs = []
 		if (mesh.hasVertices) {
 			extraAttribs.push(mesh.verticesName);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, mesh.vertices, gl.STATIC_DRAW);
-			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer); // 绑定顶点缓冲区
+			gl.bufferData(gl.ARRAY_BUFFER, mesh.vertices, gl.STATIC_DRAW); // 将顶点数据上传到GPU
+			gl.bindBuffer(gl.ARRAY_BUFFER, null); // 解绑顶点缓冲区
 		}
 
 		if (mesh.hasNormals) {
