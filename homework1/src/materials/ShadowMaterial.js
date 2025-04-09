@@ -1,6 +1,7 @@
 class ShadowMaterial extends Material {
 
     constructor(light, translate, scale, vertexShader, fragmentShader) {
+        // 生成 shadow map 的 MVP 矩阵
         let lightMVP = light.CalcLightMVP(translate, scale);
 
         super({
