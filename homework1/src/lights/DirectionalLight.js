@@ -8,6 +8,7 @@ class DirectionalLight {
         this.lightUp = lightUp
         // 当光源参数 hasShadowMap 为 true 时，将开启 Shadow Map
         this.hasShadowMap = hasShadowMap;
+        // fbo中包括以光源角度生成的的深度buffer
         this.fbo = new FBO(gl);
         if (!this.fbo) {
             console.log("无法设置帧缓冲区对象");

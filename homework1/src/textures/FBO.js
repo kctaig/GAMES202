@@ -53,6 +53,10 @@
                 return error();
             }
     
+            /*
+             *在WebGL中，取消绑定帧缓冲区、纹理和渲染缓冲区对象并不会删除它们之间关联。这些关联是在取消绑定之前通过 gl.framebufferTexture2D 和 gl. *ramebufferRenderbuffer 调用设置好的，并且会一直保持有效，直到你显式地更改这些关联。
+             */ 
+      
             //取消当前的focus对象
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             gl.bindTexture(gl.TEXTURE_2D, null);

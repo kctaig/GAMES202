@@ -20,7 +20,9 @@ class Mesh {
 
 		let extraAttribs = [];
 
+		// 这里的 verticesAttrib 是一个对象 {name : array},其他同理
 		if (verticesAttrib != null) {
+			// 表明需要传递 verticesAttrib 给 vertexShader
 			this.hasVertices = true;
 			this.vertices = verticesAttrib.array;
 			this.verticesName = verticesAttrib.name;
@@ -83,7 +85,7 @@ class Mesh {
 			16, 17, 18, 16, 18, 19,   // right
 			20, 21, 22, 20, 22, 23,   // left
 		];
-
+		// Float32Array : 储存32位浮点数的类型化数组
 		return new Mesh({ name: 'aVertexPosition', array: new Float32Array(positions) }, null, null, indices, transform);
 	}
 }

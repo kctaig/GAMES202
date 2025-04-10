@@ -18,6 +18,7 @@ class PhongMaterial extends Material {
     }
 }
 
+// async 关键字表示这个函数是异步的，它将返回一个 Promise 对象
 async function buildPhongMaterial(color, specular, light, translate, scale, vertexPath, fragmentPath) {
 
 

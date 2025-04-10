@@ -12,6 +12,8 @@ class MeshRender {
 		this.mesh = mesh;
 		this.material = material;
 
+		// 在WebGL中，gl.createBuffer() 是一个用于创建并返回一个新的缓冲区对象（WebGLBuffer）的方法。这个缓冲区对象可以用来存储顶点数据、索引数据或其他类型的原始数据，以便在绘制时使用。
+
 		this.#vertexBuffer = gl.createBuffer();
 		this.#normalBuffer = gl.createBuffer();
 		this.#texcoordBuffer = gl.createBuffer();
@@ -20,8 +22,8 @@ class MeshRender {
 		let extraAttribs = []
 		if (mesh.hasVertices) {
 			extraAttribs.push(mesh.verticesName);
-			gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer);
-			gl.bufferData(gl.ARRAY_BUFFER, mesh.vertices, gl.STATIC_DRAW);
+			gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer); // 绑定缓冲区到目标，后续所有与该目标相关的操作都将针对该缓冲区
+			gl.bufferData(gl.ARRAY_BUFFER, mesh.vertices, gl.STATIC_DRAW); // 将数据填充到缓冲区
 			gl.bindBuffer(gl.ARRAY_BUFFER, null);
 		}
 
@@ -177,6 +179,7 @@ class MeshRender {
 		const gl = this.gl;
 
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.material.frameBuffer);
+		// 设置视口
 		if (this.material.frameBuffer != null) {
 			// Shadow map
 			gl.viewport(0.0, 0.0, resolution, resolution);
@@ -197,9 +200,12 @@ class MeshRender {
 
 		// Draw
 		{
+			// 索引的长度，也即顶点的长度
 			const vertexCount = this.mesh.count;
 			const type = gl.UNSIGNED_SHORT;
+			// 索引缓冲区开始绘制的位置
 			const offset = 0;
+			// 使用当前的索引缓冲区来绘制几何体
 			gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
 		}
 	}

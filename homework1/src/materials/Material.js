@@ -10,7 +10,9 @@ class Material {
         this.#vsSrc = vsSrc;
         this.#fsSrc = fsSrc;
         
+        // 默认 uniform
         this.#flatten_uniforms = ['uViewMatrix','uModelMatrix', 'uProjectionMatrix', 'uCameraPos', 'uLightPos'];
+        // 继续添加 uniform
         for (let k in uniforms) {
             this.#flatten_uniforms.push(k);
         }

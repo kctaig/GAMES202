@@ -2,6 +2,7 @@ class EmissiveMaterial extends Material {
 
     constructor(lightIntensity, lightColor) {
         // 调用父类的构造函数
+        // 这里只转递了 uniform 给 VertexShader, 没有传递 attribute
         super({
             // 1f: 1D float value
             'uLigIntensity': { type: '1f', value: lightIntensity },
