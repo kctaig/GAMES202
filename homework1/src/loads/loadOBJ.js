@@ -31,11 +31,13 @@ function loadOBJ(renderer, path, name, objMaterial, transform) {
 						if (child.isMesh) {
 							// 提取网格 geometry
 							let geo = child.geometry;
-							// 提取材质
+							// 提取材质，这里的材质不是Material类中的，而是从obj模型中提取出来的
 							let mat;
 							if (Array.isArray(child.material)) mat = child.material[0];
 							else mat = child.material;
 							
+							// Array.from 是一个数组构造函数的方法，用于从类数组或可迭代对象创建一个新数组。
+							// （v,k）=> k 是一个箭头函数，它接受两个参数 v 和 k，分别表示数组元素的值和索引，但只返回索引 k
 							var indices = Array.from({ length: geo.attributes.position.count }, (v, k) => k);
 							// 生成适合渲染的 Mesh
 							let mesh = new Mesh(

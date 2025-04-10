@@ -21,12 +21,14 @@ class Material {
         this.frameBuffer = frameBuffer;
     }
 
+    // 动态添加额外的顶点属性到材质中,在 meshRender 中使用
     setMeshAttribs(extraAttribs) {
         for (let i = 0; i < extraAttribs.length; i++) {
             this.#flatten_attribs.push(extraAttribs[i]);
         }
     }
 
+    // 着色器的编译，使得 uniforms 和 attribs 可以动态自定义
     compile(gl) {
         return new Shader(gl, this.#vsSrc, this.#fsSrc,
             {

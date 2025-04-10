@@ -21,5 +21,7 @@ void main(void) {
                 vec4(aVertexPosition, 1.0);
 
   vTextureCoord = aTextureCoord;
+
+  // 在光源空间下投影的变换后的裁剪坐标
   vPositionFromLight = uLightMVP * vec4(aVertexPosition, 1.0);
 }

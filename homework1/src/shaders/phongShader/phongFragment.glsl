@@ -105,7 +105,17 @@ float PCSS(sampler2D shadowMap, vec4 coords){
 
 
 float useShadowMap(sampler2D shadowMap, vec4 shadowCoord){
-  return 1.0;
+  // 查询当前着色点在 ShadowMap 中的深度值
+  vec4 rgbaDepth = texture2D(shadowMap, shadowCoord.xy);
+  float shadowDepth = unpack(rgbaDepth);
+  // 计算当前着色点的深度值
+  float currentDepth = shadowCoord.z;
+  if(currentDepth > shadowDepth + EPS) {
+    return 0.0;
+  }
+  else{
+    return 1.0;
+  } 
 }
 
 vec3 blinnPhong() {
@@ -134,7 +144,11 @@ vec3 blinnPhong() {
 void main(void) {
 
   float visibility;
+  // 在 Shadow Map 中采样的是 uv 坐标，因此需要将坐标转换到 [0, 1] 范围内，先除以 w 分量是为了获得 NDC 坐标
+  vec3 shadowCoord = vPositionFromLight.xyz / vPositionFromLight.w;
+  shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
   visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
+
   //visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 

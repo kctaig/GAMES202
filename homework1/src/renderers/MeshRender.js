@@ -45,11 +45,14 @@ class MeshRender {
 		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indices), gl.STATIC_DRAW);
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
 
+		// 每个mesh可以自定义顶点属性和材质属性，动态编译着色器
 		this.material.setMeshAttribs(extraAttribs);
 		this.shader = this.material.compile(gl);
 	}
 
 	bindGeometryInfo() {
+
+		// 将顶点数据从缓冲区绑定到着色器的属性上，以便在渲染时能够正确地传递顶点数据给GPU
 		const gl = this.gl;
 
 		if (this.mesh.hasVertices) {
@@ -121,11 +124,13 @@ class MeshRender {
 		mat4.scale(modelMatrix, modelMatrix, this.mesh.transform.scale);
 		// View transform
 		camera.updateMatrixWorld();
+		// 视图矩阵是相机的世界矩阵的逆矩阵，用于将世界坐标转换为相机坐标
 		mat4.invert(viewMatrix, camera.matrixWorld.elements);
 		// mat4.lookAt(viewMatrix, cameraPosition, [0,0,0], [0,1,0]);
 		// Projection transform
 		mat4.copy(projectionMatrix, camera.projectionMatrix.elements);
 
+		// 绑定矩阵到着色器的 uniform 变量上
 		gl.uniformMatrix4fv(
 			this.shader.program.uniforms.uProjectionMatrix,
 			false,
@@ -146,6 +151,7 @@ class MeshRender {
 	bindMaterialParameters() {
 		const gl = this.gl;
 
+		// 绑定材质独有的 uniform 变量到着色器的 uniform 变量上
 		let textureNum = 0;
 		for (let k in this.material.uniforms) {
 

@@ -4,7 +4,7 @@ class PhongMaterial extends Material {
         let lightMVP = light.CalcLightMVP(translate, scale);
         let lightIntensity = light.mat.GetIntensity();
         // 这里没有传入 frameBuffer 参数，
-        // 因此在父类 Material 中，frameBuffer 将被默认设置为 undefined
+        // 在父类 Material 中，frameBuffer 将被默认设置为 undefined,相当于绑定到默认的 framebuffer（屏幕）上
         super({
             // Phong
             'uSampler': { type: 'texture', value: color },
