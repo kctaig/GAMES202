@@ -103,20 +103,33 @@ float PCSS(sampler2D shadowMap, vec4 coords){
 
 }
 
+#define SHADOW_MAP_SIZE 2048.
+#define FRUSTUM_SIZE 400.
 
-float useShadowMap(sampler2D shadowMap, vec4 shadowCoord){
+float getShadowBias(float c,float filterRadiusUV){
+  vec3 normal=normalize(vNormal);
+  vec3 lightDir=normalize(uLightPos-vFragPos);
+  float fragSize=(1.+ceil(filterRadiusUV))*(FRUSTUM_SIZE/SHADOW_MAP_SIZE/2.);
+  return max(fragSize,fragSize*(1.-dot(normal,lightDir)))*c;
+}
+
+
+float useShadowMap(sampler2D shadowMap, vec4 shadowCoord, float biasC, float filterRadiusUV){
   // 查询当前着色点在 ShadowMap 中的深度值
   vec4 rgbaDepth = texture2D(shadowMap, shadowCoord.xy);
   float shadowDepth = unpack(rgbaDepth);
   // 计算当前着色点的深度值
   float currentDepth = shadowCoord.z;
-  if(currentDepth > shadowDepth + EPS) {
+  float bias = getShadowBias(biasC, filterRadiusUV);
+  // if(currentDepth - bias >= shadowDepth + EPS) {
+  if(currentDepth >= shadowDepth + bias) {
     return 0.0;
   }
   else{
     return 1.0;
   } 
 }
+
 
 vec3 blinnPhong() {
   vec3 color = texture2D(uSampler, vTextureCoord).rgb;
@@ -148,8 +161,10 @@ void main(void) {
   vec3 shadowCoord = vPositionFromLight.xyz / vPositionFromLight.w;
   // 由于shadowCoord是 NDC 坐标 ，在[-1,1]范围，需要转换到[0,1]范围，从而可以在 shadow map 纹理中查找
   shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
+  float bias = 0.3;
+  visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0), bias, 0.);
+  // visibility=useShadowMap(uShadowMap,vec4(shadowCoord,1.0));
 
-  visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 
