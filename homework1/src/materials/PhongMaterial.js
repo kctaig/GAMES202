@@ -11,6 +11,7 @@ class PhongMaterial extends Material {
             'uKs': { type: '3fv', value: specular },
             'uLightIntensity': { type: '3fv', value: lightIntensity },
             // Shadow
+            // shadow map 被当作纹理传进着色器
             'uShadowMap': { type: 'texture', value: light.fbo },
             'uLightMVP': { type: 'matrix4fv', value: lightMVP },
 

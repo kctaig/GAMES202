@@ -43,6 +43,7 @@ class WebGLRenderer {
 
             // Camera pass
             for (let i = 0; i < this.meshes.length; i++) {
+                // 在设置统一变量之前要告诉 webGL 你要使用哪个着色器程序
                 this.gl.useProgram(this.meshes[i].shader.program.glShaderProgram);
                 this.gl.uniform3fv(this.meshes[i].shader.program.uniforms.uLightPos, this.lights[l].entity.lightPos);
                 this.meshes[i].draw(this.camera);

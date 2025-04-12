@@ -22,6 +22,8 @@ void main(void) {
 
   vTextureCoord = aTextureCoord;
 
+  // gl_Position 是正在被处理的的点在当前 camera 视角下的裁剪坐标，而 vPositionFromLight 是在光源空间下的裁剪坐标
+
   // 在光源空间下投影的变换后的裁剪坐标
   vPositionFromLight = uLightMVP * vec4(aVertexPosition, 1.0);
 }

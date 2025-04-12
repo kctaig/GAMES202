@@ -31,9 +31,11 @@ class Material {
     // 着色器的编译，使得 uniforms 和 attribs 可以动态自定义
     compile(gl) {
         return new Shader(gl, this.#vsSrc, this.#fsSrc,
+            // shaderLocations 是一个对象，包含 uniforms 和 attribs 的位置
             {
                 uniforms: this.#flatten_uniforms,
                 attribs: this.#flatten_attribs
-            });
+            }
+        );
     }
 }

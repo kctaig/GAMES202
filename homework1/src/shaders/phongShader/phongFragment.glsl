@@ -144,11 +144,12 @@ vec3 blinnPhong() {
 void main(void) {
 
   float visibility;
-  // 在 Shadow Map 中采样的是 uv 坐标，因此需要将坐标转换到 [0, 1] 范围内，先除以 w 分量是为了获得 NDC 坐标
+  // vPositionFromLight是裁剪坐标，需要除以w分量 （由于不是 gl_Position,不会被自动处理），从而转换成 NDC 坐标
   vec3 shadowCoord = vPositionFromLight.xyz / vPositionFromLight.w;
+  // 由于shadowCoord是 NDC 坐标 ，在[-1,1]范围，需要转换到[0,1]范围，从而可以在 shadow map 纹理中查找
   shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
-  visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
 
+  visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
   //visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 

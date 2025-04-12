@@ -20,6 +20,7 @@ vec4 pack (float depth) {
 
 void main(){
 
+  // 这里的 gl_FragColor 最终被写入 light 的 framebuffer 中
   //gl_FragColor = vec4( 1.0, 0.0, 0.0, gl_FragCoord.z);
   gl_FragColor = pack(gl_FragCoord.z);
 }
