@@ -19,6 +19,8 @@ varying highp vec3 vNormal;
 #define BLOCKER_SEARCH_NUM_SAMPLES NUM_SAMPLES
 #define PCF_NUM_SAMPLES NUM_SAMPLES
 #define NUM_RINGS 10
+#define SHADOW_MAP_SIZE 2048.
+#define FRUSTUM_SIZE 400.
 
 #define EPS 1e-3
 #define PI 3.141592653589793
@@ -87,9 +89,6 @@ float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
 	return 1.0;
 }
 
-float PCF(sampler2D shadowMap, vec4 coords) {
-  return 1.0;
-}
 
 float PCSS(sampler2D shadowMap, vec4 coords){
 
@@ -103,8 +102,6 @@ float PCSS(sampler2D shadowMap, vec4 coords){
 
 }
 
-#define SHADOW_MAP_SIZE 2048.
-#define FRUSTUM_SIZE 400.
 
 float getShadowBias(float c,float filterRadiusUV){
   vec3 normal=normalize(vNormal);
@@ -128,6 +125,19 @@ float useShadowMap(sampler2D shadowMap, vec4 shadowCoord, float biasC, float fil
   else{
     return 1.0;
   } 
+}
+
+float PCF(sampler2D shadowMap,vec4 coords,float biasC,float filterRadiusUV){
+  
+  // 单位圆盘（或者正方形）上采样的随机偏移量
+  poissonDiskSamples(coords.xy);
+  
+  float visibility=0.;
+  for(int i=0;i<PCF_NUM_SAMPLES;i++){
+    visibility+=useShadowMap(shadowMap,coords+vec4(poissonDisk[i]*filterRadiusUV,0.,0.),biasC,filterRadiusUV);
+  }
+  visibility/=float(PCF_NUM_SAMPLES);
+  return visibility;
 }
 
 
@@ -162,11 +172,12 @@ void main(void) {
   // 由于shadowCoord是 NDC 坐标 ，在[-1,1]范围，需要转换到[0,1]范围，从而可以在 shadow map 纹理中查找
   shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
   float bias = 0.3;
-  visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0), bias, 0.);
-  // visibility=useShadowMap(uShadowMap,vec4(shadowCoord,1.0));
+  // 阴影贴图中采样的过滤半径
+  float filterRadiusUV = float(NUM_RINGS) / SHADOW_MAP_SIZE;
 
-  //visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0));
-  //visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
+  // visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0), bias, 0.);
+  visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0), bias, filterRadiusUV);
+  // visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
 
   vec3 phongColor = blinnPhong();
 
