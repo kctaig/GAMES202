@@ -112,7 +112,6 @@ float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
 
 
 float getShadowBias(float c,float filterRadiusUV){
-  filterRadiusUV=clamp(filterRadiusUV,0.,1.);
   vec3 normal=normalize(vNormal);
   vec3 lightDir=normalize(uLightPos-vFragPos);
   float fragSize=(1.+ceil(filterRadiusUV))*(FRUSTUM_SIZE/SHADOW_MAP_SIZE/2.);
@@ -156,8 +155,8 @@ float PCSS(sampler2D shadowMap, vec4 coords, float biasC){
 
   // STEP 2: penumbra size
   float penumbra = (coords.z - avgBlockerDepth) / avgBlockerDepth * float(LIGHT_SIZE_UV);
-
-  // float filterRadiusUV=float(NUM_RINGS)/SHADOW_MAP_SIZE;
+  // 限制 penumbra 的范围在 [0,1] 之间，否则会出现不必要的阴影
+  penumbra = clamp(penumbra, 0.0, 1.0);
 
   // STEP 3: filtering
   return PCF(shadowMap, coords, biasC, penumbra);  
