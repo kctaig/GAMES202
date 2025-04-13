@@ -29,6 +29,11 @@ class WebGLRenderer {
         console.assert(this.lights.length == 1, "Multiple lights");
 
         for (let l = 0; l < this.lights.length; l++) {
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, this.lights[l].entity.fbo); // 绑定到当前光源的framebuffer
+            gl.clearColor(1.0, 1.0, 1.0, 1.0); // shadowmap默认白色（无遮挡），解决地面边缘产生阴影的问题（因为地面外采样不到，默认值为0会认为是被遮挡）
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // 清除shadowmap上一帧的颜色、深度缓存，否则会一直叠加每一帧的结果
+
             // Draw light
             // TODO: Support all kinds of transform
             this.lights[l].meshRender.mesh.transform.translate = this.lights[l].entity.lightPos;
