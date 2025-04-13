@@ -19,8 +19,13 @@ varying highp vec3 vNormal;
 #define BLOCKER_SEARCH_NUM_SAMPLES NUM_SAMPLES
 #define PCF_NUM_SAMPLES NUM_SAMPLES
 #define NUM_RINGS 10
+
 #define SHADOW_MAP_SIZE 2048.
 #define FRUSTUM_SIZE 400.
+
+#define NEAR_PLANE .01
+#define LIGHT_WORLD_SIZE 5.
+#define LIGHT_SIZE_UV LIGHT_WORLD_SIZE/FRUSTUM_SIZE
 
 #define EPS 1e-3
 #define PI 3.141592653589793
@@ -86,24 +91,28 @@ void uniformDiskSamples( const in vec2 randomSeed ) {
 }
 
 float findBlocker( sampler2D shadowMap,  vec2 uv, float zReceiver ) {
-	return 1.0;
-}
-
-
-float PCSS(sampler2D shadowMap, vec4 coords){
-
-  // STEP 1: avgblocker depth
-
-  // STEP 2: penumbra size
-
-  // STEP 3: filtering
+  int blockerNum = 0;
+  float blockerDepth = 0.0;
   
-  return 1.0;
-
+  float posZFromLight = vPositionFromLight.z;
+  float seachRadius = LIGHT_SIZE_UV * (posZFromLight - NEAR_PLANE) /posZFromLight;
+  
+  poissonDiskSamples(uv);
+  for(int i =0; i< BLOCKER_SEARCH_NUM_SAMPLES; i++){
+    float shadowDepth = unpack(texture2D(shadowMap, uv + poissonDisk[i] * seachRadius));
+    if(zReceiver > shadowDepth){
+      blockerDepth +=shadowDepth;
+      blockerNum++;
+    }
+  }
+  if(blockerNum == 0)
+    return -1.0;
+  return blockerDepth / float(blockerNum);
 }
 
 
 float getShadowBias(float c,float filterRadiusUV){
+  filterRadiusUV=clamp(filterRadiusUV,0.,1.);
   vec3 normal=normalize(vNormal);
   vec3 lightDir=normalize(uLightPos-vFragPos);
   float fragSize=(1.+ceil(filterRadiusUV))*(FRUSTUM_SIZE/SHADOW_MAP_SIZE/2.);
@@ -118,26 +127,40 @@ float useShadowMap(sampler2D shadowMap, vec4 shadowCoord, float biasC, float fil
   // 计算当前着色点的深度值
   float currentDepth = shadowCoord.z;
   float bias = getShadowBias(biasC, filterRadiusUV);
-  // if(currentDepth - bias >= shadowDepth + EPS) {
-  if(currentDepth >= shadowDepth + bias) {
-    return 0.0;
-  }
-  else{
-    return 1.0;
-  } 
+  // if(currentDepth - bias >= shadowDepth + EPS)  return 0.0;
+  if(currentDepth >= shadowDepth + bias) return 0.0;
+  return 1.;
 }
 
-float PCF(sampler2D shadowMap,vec4 coords,float biasC,float filterRadiusUV){
+float PCF(sampler2D shadowMap, vec4 coords, float biasC, float filterRadiusUV){
   
   // 单位圆盘（或者正方形）上采样的随机偏移量
   poissonDiskSamples(coords.xy);
   
   float visibility=0.;
   for(int i=0;i<PCF_NUM_SAMPLES;i++){
-    visibility+=useShadowMap(shadowMap,coords+vec4(poissonDisk[i]*filterRadiusUV,0.,0.),biasC,filterRadiusUV);
+    visibility+=useShadowMap(shadowMap, coords + vec4(poissonDisk[i] * filterRadiusUV,0.,0.), biasC, filterRadiusUV);
   }
   visibility/=float(PCF_NUM_SAMPLES);
   return visibility;
+}
+
+float PCSS(sampler2D shadowMap, vec4 coords, float biasC){
+  
+  // STEP 1: avgblocker depth
+  float avgBlockerDepth = findBlocker(shadowMap, coords.xy, coords.z);
+
+  // if no blocker found, return 1.0
+  if(avgBlockerDepth < -EPS) 
+    return 1.0;
+
+  // STEP 2: penumbra size
+  float penumbra = (coords.z - avgBlockerDepth) / avgBlockerDepth * float(LIGHT_SIZE_UV);
+
+  // float filterRadiusUV=float(NUM_RINGS)/SHADOW_MAP_SIZE;
+
+  // STEP 3: filtering
+  return PCF(shadowMap, coords, biasC, penumbra);  
 }
 
 
@@ -171,13 +194,13 @@ void main(void) {
   vec3 shadowCoord = vPositionFromLight.xyz / vPositionFromLight.w;
   // 由于shadowCoord是 NDC 坐标 ，在[-1,1]范围，需要转换到[0,1]范围，从而可以在 shadow map 纹理中查找
   shadowCoord.xyz = shadowCoord.xyz * 0.5 + 0.5;
-  float bias = 0.3;
+  float bias = 0.2;
   // 阴影贴图中采样的过滤半径
   float filterRadiusUV = float(NUM_RINGS) / SHADOW_MAP_SIZE;
 
   // visibility = useShadowMap(uShadowMap, vec4(shadowCoord, 1.0), bias, 0.);
-  visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0), bias, filterRadiusUV);
-  // visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0));
+  // visibility = PCF(uShadowMap, vec4(shadowCoord, 1.0), bias, filterRadiusUV);
+  visibility = PCSS(uShadowMap, vec4(shadowCoord, 1.0), bias);
 
   vec3 phongColor = blinnPhong();
 
