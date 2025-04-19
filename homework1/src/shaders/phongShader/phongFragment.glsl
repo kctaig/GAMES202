@@ -126,8 +126,8 @@ float useShadowMap(sampler2D shadowMap, vec4 shadowCoord, float biasC, float fil
   // 计算当前着色点的深度值
   float currentDepth = shadowCoord.z;
   float bias = getShadowBias(biasC, filterRadiusUV);
-  // if(currentDepth - bias >= shadowDepth + EPS)  return 0.0;
-  if(currentDepth >= shadowDepth + bias) return 0.0;
+  if(currentDepth - bias >= shadowDepth + EPS)  return 0.0;
+  // if(currentDepth >= shadowDepth + bias) return 0.0;
   return 1.;
 }
 
